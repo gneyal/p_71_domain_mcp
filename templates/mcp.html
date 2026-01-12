@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Server - Domain AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['SF Mono', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        gray: {
+                            'apple': '#86868b',
+                            'apple-bg': '#f5f5f7',
+                            'apple-border': '#e5e5e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-900 min-h-screen antialiased">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+        <a href="/" class="text-gray-apple hover:text-gray-900 text-sm mb-8 inline-block">&larr; Back to Domain AI Agent</a>
+
+        <h1 class="text-3xl font-semibold text-gray-900 tracking-tight mb-4">MCP Server</h1>
+        <p class="text-gray-apple mb-8">Use the name generator directly in Claude, Cursor, or any MCP-compatible AI assistant.</p>
+
+        <!-- What is MCP -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">What is MCP?</h2>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                The <a href="https://modelcontextprotocol.io" target="_blank" class="text-blue-600 hover:underline">Model Context Protocol (MCP)</a>
+                is an open standard that allows AI assistants to use external tools and services.
+                By adding our MCP server, you can generate creative names directly in your AI conversations.
+            </p>
+        </section>
+
+        <!-- Installation -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Installation</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-3">1. Clone or download the server</h3>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>git clone https://github.com/autobirds/domain-ai-agent.git
+cd domain-ai-agent
+pip install -r requirements.txt</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-3">2. Set up your API key</h3>
+                    <p class="text-gray-600 text-sm mb-2">Create a <code class="bg-gray-100 px-1 rounded">.env</code> file with your Anthropic API key:</p>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>ANTHROPIC_API_KEY=your-api-key-here</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-3">3. Add to Claude Desktop</h3>
+                    <p class="text-gray-600 text-sm mb-2">Edit your Claude Desktop config file:</p>
+                    <ul class="text-sm text-gray-600 mb-3 space-y-1">
+                        <li><strong>macOS:</strong> <code class="bg-gray-100 px-1 rounded">~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+                        <li><strong>Windows:</strong> <code class="bg-gray-100 px-1 rounded">%APPDATA%\Claude\claude_desktop_config.json</code></li>
+                    </ul>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>{
+  "mcpServers": {
+    "domain-name-generator": {
+      "command": "python",
+      "args": ["/path/to/domain-ai-agent/mcp_server.py"],
+      "env": {
+        "ANTHROPIC_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-3">4. Add to Claude Code (CLI)</h3>
+                    <p class="text-gray-600 text-sm mb-2">Edit <code class="bg-gray-100 px-1 rounded">~/.claude/settings.json</code>:</p>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>{
+  "mcpServers": {
+    "domain-name-generator": {
+      "command": "python",
+      "args": ["/path/to/domain-ai-agent/mcp_server.py"]
+    }
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Usage</h2>
+            <p class="text-gray-700 mb-4">Once installed, you can ask Claude to generate names naturally:</p>
+
+            <div class="space-y-4">
+                <div class="bg-gray-apple-bg rounded-xl p-5">
+                    <p class="text-gray-600 text-sm mb-2">Example prompts:</p>
+                    <ul class="space-y-2 text-gray-800">
+                        <li>"Generate 10 name ideas for a fintech startup"</li>
+                        <li>"I need creative brand names for a sustainable fashion company"</li>
+                        <li>"Give me domain suggestions for an AI writing tool, use .ai and .io"</li>
+                        <li>"Find me available .com domains for a pet care app"</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tool Reference -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Tool Reference</h2>
+
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                <div class="bg-gray-apple-bg px-5 py-3 border-b border-gray-200">
+                    <code class="font-mono font-semibold">generate_names</code>
+                </div>
+                <div class="p-5">
+                    <p class="text-gray-700 mb-4">Generate creative domain and brand name suggestions using AI.</p>
+
+                    <h4 class="font-medium text-gray-900 mb-3">Parameters</h4>
+                    <div class="space-y-3">
+                        <div class="border-b border-gray-100 pb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">description</code>
+                                <span class="text-xs text-red-500 font-medium">required</span>
+                                <span class="text-xs text-gray-apple">string</span>
+                            </div>
+                            <p class="text-sm text-gray-600">What kind of names you're looking for.</p>
+                        </div>
+
+                        <div class="border-b border-gray-100 pb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">count</code>
+                                <span class="text-xs text-gray-apple">integer, default: 10</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Number of suggestions (max: 50).</p>
+                        </div>
+
+                        <div class="border-b border-gray-100 pb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">tlds</code>
+                                <span class="text-xs text-gray-apple">string, default: ".com,.io,.ai"</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Comma-separated list of TLDs.</p>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">check_availability</code>
+                                <span class="text-xs text-gray-apple">boolean, default: false</span>
+                            </div>
+                            <p class="text-sm text-gray-600">Check domain availability (slower but shows if domains are taken).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Example Output -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Example Output</h2>
+            <div class="bg-gray-apple-bg rounded-xl p-5 font-mono text-sm overflow-x-auto">
+<pre class="text-gray-800">Generated 5 name suggestions:
+
+1. **finova** (finova.io) - $33/yr
+   Combines finance and innovation, sounds trustworthy
+   ? Unknown
+
+2. **paylix** (paylix.com) - $11/yr
+   Short, memorable, suggests payment simplicity
+   ? Unknown
+
+3. **vaultly** (vaultly.ai) - $80/yr
+   Implies security and ease, modern suffix
+   ? Unknown
+
+...</pre>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div class="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-apple">
+            <p class="mb-2">
+                <a href="/api" class="underline hover:text-gray-900">REST API</a>
+                <span class="mx-2">·</span>
+                <a href="/privacy" class="underline hover:text-gray-900">Privacy & Terms</a>
+            </p>
+            <p>Made by <a href="https://autobirds.com" target="_blank" class="font-semibold text-gray-900 hover:underline">AutoBirds</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Domain AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['SF Mono', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        gray: {
+                            'apple': '#86868b',
+                            'apple-bg': '#f5f5f7',
+                            'apple-border': '#e5e5e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white text-gray-900 min-h-screen antialiased">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+        <a href="/" class="text-gray-apple hover:text-gray-900 text-sm mb-8 inline-block">&larr; Back to Domain AI Agent</a>
+
+        <h1 class="text-3xl font-semibold text-gray-900 tracking-tight mb-4">API Documentation</h1>
+        <p class="text-gray-apple mb-12">Generate creative domain and brand name suggestions programmatically.</p>
+
+        <!-- Endpoint -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Endpoint</h2>
+            <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm">
+                <span class="text-green-400">POST</span> /api/v1/generate
+            </div>
+        </section>
+
+        <!-- Request -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Request Body</h2>
+            <div class="bg-gray-apple-bg rounded-xl p-5 font-mono text-sm overflow-x-auto">
+<pre class="text-gray-800">{
+  "description": "Short, catchy name for a fintech startup",
+  "count": 10,
+  "tlds": ".com,.io,.ai",
+  "check_availability": true
+}</pre>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                <div class="border-b border-gray-200 pb-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">description</code>
+                        <span class="text-xs text-red-500 font-medium">required</span>
+                        <span class="text-xs text-gray-apple">string</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Describe what kind of names you're looking for. Be specific for better results.</p>
+                </div>
+
+                <div class="border-b border-gray-200 pb-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">count</code>
+                        <span class="text-xs text-gray-apple">integer, default: 10</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Number of suggestions to return. Min: 1, Max: 50.</p>
+                </div>
+
+                <div class="border-b border-gray-200 pb-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">tlds</code>
+                        <span class="text-xs text-gray-apple">string, default: ".com,.io,.ai"</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Comma-separated list of TLDs to use (e.g., ".com,.io,.co,.ai").</p>
+                </div>
+
+                <div class="pb-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">check_availability</code>
+                        <span class="text-xs text-gray-apple">boolean, default: true</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Whether to check domain availability via WHOIS. Set to <code class="bg-gray-100 px-1 rounded">false</code> for faster results when you just need name ideas.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Response -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Response</h2>
+            <div class="bg-gray-apple-bg rounded-xl p-5 font-mono text-sm overflow-x-auto">
+<pre class="text-gray-800">{
+  "suggestions": [
+    {
+      "name": "finova",
+      "domain": "finova.io",
+      "reason": "Combines finance and innovation, sounds trustworthy",
+      "available": true,
+      "price": 32.98,
+      "links": {
+        "namecheap": "https://namecheap.com/...",
+        "godaddy": "https://godaddy.com/...",
+        "porkbun": "https://porkbun.com/..."
+      }
+    }
+  ],
+  "usage": {
+    "input_tokens": 244,
+    "output_tokens": 322,
+    "total_tokens": 566,
+    "cost_usd": 0.0056
+  }
+}</pre>
+            </div>
+
+            <div class="mt-6 space-y-3">
+                <h3 class="font-medium text-gray-900">Response Fields</h3>
+                <ul class="text-sm text-gray-600 space-y-2">
+                    <li><code class="bg-gray-100 px-1 rounded">name</code> - The name without TLD</li>
+                    <li><code class="bg-gray-100 px-1 rounded">domain</code> - Full domain with TLD</li>
+                    <li><code class="bg-gray-100 px-1 rounded">reason</code> - Why this name fits your description</li>
+                    <li><code class="bg-gray-100 px-1 rounded">available</code> - true, false, or null (if check_availability is false)</li>
+                    <li><code class="bg-gray-100 px-1 rounded">price</code> - Estimated yearly price in USD</li>
+                    <li><code class="bg-gray-100 px-1 rounded">links</code> - Direct links to purchase the domain</li>
+                    <li><code class="bg-gray-100 px-1 rounded">usage</code> - Token usage and cost for transparency</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Examples -->
+        <section class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Examples</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">cURL</h3>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>curl -X POST https://your-domain.com/api/v1/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Modern SaaS product for team collaboration",
+    "count": 5,
+    "tlds": ".com,.io",
+    "check_availability": false
+  }'</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">Python</h3>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre><span class="text-blue-400">import</span> requests
+
+response = requests.post(
+    <span class="text-green-400">"https://your-domain.com/api/v1/generate"</span>,
+    json={
+        <span class="text-green-400">"description"</span>: <span class="text-green-400">"AI-powered writing assistant"</span>,
+        <span class="text-green-400">"count"</span>: <span class="text-yellow-400">10</span>,
+        <span class="text-green-400">"check_availability"</span>: <span class="text-yellow-400">False</span>
+    }
+)
+
+names = response.json()[<span class="text-green-400">"suggestions"</span>]
+<span class="text-blue-400">for</span> name <span class="text-blue-400">in</span> names:
+    <span class="text-blue-400">print</span>(f<span class="text-green-400">"{name['name']} - {name['reason']}"</span>)</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-medium text-gray-900 mb-2">JavaScript</h3>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre><span class="text-blue-400">const</span> response = <span class="text-blue-400">await</span> fetch(<span class="text-green-400">"/api/v1/generate"</span>, {
+  method: <span class="text-green-400">"POST"</span>,
+  headers: { <span class="text-green-400">"Content-Type"</span>: <span class="text-green-400">"application/json"</span> },
+  body: JSON.stringify({
+    description: <span class="text-green-400">"Mobile app for fitness tracking"</span>,
+    count: <span class="text-yellow-400">5</span>
+  })
+});
+
+<span class="text-blue-400">const</span> { suggestions } = <span class="text-blue-400">await</span> response.json();
+suggestions.forEach(s => console.log(s.name, s.reason));</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rate Limits -->
+        <section class="mb-12">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <h2 class="text-lg font-semibold text-amber-900 mb-2">Fair Usage</h2>
+                <p class="text-amber-800 text-sm">
+                    This API is provided free of charge. Please use it responsibly. Excessive requests
+                    may result in rate limiting. If you need higher limits for production use,
+                    please contact us.
+                </p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div class="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-apple">
+            <p>Made by <a href="https://autobirds.com" target="_blank" class="font-semibold text-gray-900 hover:underline">AutoBirds</a></p>
+        </div>
+    </div>
+</body>
+</html>

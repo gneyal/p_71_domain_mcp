@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain AI Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    colors: {
+                        gray: {
+                            'apple': '#86868b',
+                            'apple-bg': '#f5f5f7',
+                            'apple-border': '#e5e5e5',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.4s ease forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Staggered animation delays */
+        .domain-card:nth-child(1) { animation-delay: 0.05s; }
+        .domain-card:nth-child(2) { animation-delay: 0.1s; }
+        .domain-card:nth-child(3) { animation-delay: 0.15s; }
+        .domain-card:nth-child(4) { animation-delay: 0.2s; }
+        .domain-card:nth-child(5) { animation-delay: 0.25s; }
+        .domain-card:nth-child(6) { animation-delay: 0.3s; }
+        .domain-card:nth-child(7) { animation-delay: 0.35s; }
+        .domain-card:nth-child(8) { animation-delay: 0.4s; }
+        .domain-card:nth-child(9) { animation-delay: 0.45s; }
+        .domain-card:nth-child(10) { animation-delay: 0.5s; }
+        .domain-card:nth-child(n+11) { animation-delay: 0.55s; }
+
+        /* Spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+    <!-- PostHog Analytics -->
+    <script>
+        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+        posthog.init('phc_QAE6zbab92ajTeCR7m9fNNh1H3aWzG7f7Goqm7roAg2', {
+            api_host: 'https://us.i.posthog.com',
+            person_profiles: 'anonymous'
+        });
+    </script>
+</head>
+<body class="bg-white text-gray-900 min-h-screen antialiased">
+    <!-- News Banner -->
+    <div class="bg-gray-900 text-white py-3 px-6 flex items-center justify-center gap-5 flex-wrap text-sm">
+        <span class="font-medium">Get daily domain recommendations in your inbox</span>
+        <div class="flex gap-2">
+            <input type="email" id="subscribe-email" placeholder="Enter your email"
+                class="px-3.5 py-2 border-none rounded-md text-sm w-48 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:bg-white/15">
+            <button onclick="subscribe()"
+                class="bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-all">
+                Subscribe
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-[1200px] mx-auto px-6 py-10">
+        <header id="page-header" class="mb-8 text-center transition-all duration-700">
+            <h1 class="text-3xl font-semibold text-gray-900 tracking-tight">Domain AI Agent</h1>
+        </header>
+
+        <div id="main-layout" class="grid grid-cols-1 gap-10 items-start transition-all duration-700 ease-out justify-center" data-expanded="false">
+            <!-- Left Column: Search -->
+            <aside id="search-column" class="sticky top-6 max-lg:static w-full max-w-[420px] justify-self-center transition-all duration-700">
+                <section class="bg-gray-apple-bg rounded-2xl p-6">
+                    <div class="mb-4">
+                        <label for="description" class="block text-xs font-medium text-gray-apple uppercase tracking-wide mb-2">
+                            What kind of domain are you looking for?
+                        </label>
+                        <textarea id="description"
+                            placeholder="e.g., Short, catchy names for a fintech startup. Should sound modern and trustworthy. Prefer made-up words that are easy to pronounce..."
+                            class="w-full p-4 border-none rounded-xl text-base min-h-[200px] resize-none bg-white text-gray-900 leading-relaxed focus:outline-none focus:ring-4 focus:ring-blue-500/20 placeholder-gray-apple"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="tlds" class="text-[11px] font-medium text-gray-apple uppercase tracking-wide">TLDs</label>
+                            <input type="text" id="tlds" placeholder=".com,.io,.ai"
+                                class="px-3.5 py-3 border-none rounded-lg text-[15px] bg-white text-gray-900 w-full focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="daily-count" class="text-[11px] font-medium text-gray-apple uppercase tracking-wide">Results</label>
+                            <input type="number" id="daily-count" min="1" max="50" value="25"
+                                class="px-3.5 py-3 border-none rounded-lg text-[15px] bg-white text-gray-900 w-full focus:outline-none focus:ring-4 focus:ring-blue-500/20">
+                        </div>
+                    </div>
+
+                    <button id="btn-generate"
+                        class="w-full mt-4 py-3.5 px-7 bg-gray-900 text-white rounded-lg text-[15px] font-medium hover:bg-black active:scale-[0.98] transition-all">
+                        Generate Domains
+                    </button>
+
+                    <footer id="usage-footer" class="hidden mt-4 pt-4 border-t border-gray-apple-border">
+                        <div class="flex flex-col gap-1 text-gray-apple text-xs text-center">
+                            <span>Last generation: <strong id="usage-tokens" class="text-gray-900 font-medium">0</strong> tokens</span>
+                            <span>Cost: <strong id="usage-cost" class="text-gray-900 font-medium">$0.00</strong></span>
+                        </div>
+                    </footer>
+                </section>
+            </aside>
+
+            <!-- Right Column: Results -->
+            <main id="results-column" class="min-h-[400px] hidden opacity-0 transition-all duration-500">
+                <div class="flex gap-2 mb-6">
+                    <button id="tab-suggestions" class="tab px-4 py-2 rounded-lg text-sm font-medium text-gray-apple hover:text-gray-900 transition-all bg-gray-apple-bg text-gray-900">
+                        Suggestions
+                    </button>
+                    <button id="tab-history" class="tab px-4 py-2 rounded-lg text-sm font-medium text-gray-apple hover:text-gray-900 transition-all">
+                        History
+                    </button>
+                </div>
+
+                <div id="suggestions-container"></div>
+                <div id="history-container" class="hidden"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 px-6 text-xs text-gray-apple">
+        <p class="mb-2">
+            We save your preferences in your browser's local storage.
+            <a href="/privacy" class="underline hover:text-gray-900">Privacy & Terms</a>
+            <span class="mx-2">·</span>
+            <a href="/api" class="underline hover:text-gray-900">API</a>
+            <span class="mx-2">·</span>
+            <a href="/mcp" class="underline hover:text-gray-900">MCP</a>
+        </p>
+        <p>Made by <a href="https://autobirds.com" target="_blank" class="font-semibold text-gray-900 hover:underline">AutoBirds</a></p>
+    </footer>
+
+    <script src="/static/app.js?v=6"></script>
+</body>
+</html>
