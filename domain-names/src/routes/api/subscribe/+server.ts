@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 					const { Resend } = await import('resend');
 					const resend = new Resend(resendKey);
 					await resend.emails.send({
-						from: 'Domain AI Agent <domains@autobirds.com>',
+						from: 'Domain AI Agent <eyal@brickbear.ai>',
 						to: email,
 						subject: 'Welcome to Domain AI Agent!',
 						html: `
