@@ -1,5 +1,6 @@
 import whois
 import time
+import concurrent.futures
 from functools import lru_cache
 from typing import Optional
 from urllib.parse import quote
@@ -26,48 +27,64 @@ TLD_PRICES = {
 
 # Cache WHOIS results for 1 hour (3600 seconds)
 @lru_cache(maxsize=1000)
-def _cached_whois_lookup(domain: str, cache_time: int) -> bool:
+def _cached_whois_lookup(domain: str, cache_time: int) -> Optional[bool]:
     """
     Check if a domain is available via WHOIS lookup.
     cache_time is used to invalidate cache (pass hour timestamp).
-    Returns True if available, False if taken.
+    Returns True if available, False if taken, None if timeout/error.
     """
-    try:
-        w = whois.whois(domain)
-        # If domain_name is None or empty, domain is likely available
-        if w.domain_name is None:
+    def do_lookup():
+        try:
+            w = whois.whois(domain)
+            # If domain_name is None or empty, domain is likely available
+            if w.domain_name is None:
+                return True
+            # Some registrars return the domain name if registered
+            return False
+        except whois.parser.PywhoisError:
+            # WHOIS lookup failed - domain likely available
             return True
-        # Some registrars return the domain name if registered
-        return False
-    except whois.parser.PywhoisError:
-        # WHOIS lookup failed - domain likely available
-        return True
-    except Exception:
-        # On error, assume taken to be safe
-        return False
+        except Exception:
+            # On error, return None (unknown)
+            return None
+
+    # Run with 5 second timeout
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(do_lookup)
+        try:
+            return future.result(timeout=5)
+        except concurrent.futures.TimeoutError:
+            return None  # Unknown on timeout
 
 
-def check_domain_available(domain: str) -> bool:
+def check_domain_available(domain: str) -> Optional[bool]:
     """
     Check if a domain is available.
     Results are cached per hour to avoid excessive lookups.
+    Returns True if available, False if taken, None if unknown.
     """
     # Use hour timestamp for cache invalidation
     cache_time = int(time.time() // 3600)
     return _cached_whois_lookup(domain, cache_time)
 
 
-def check_domains_batch(domains: list[str], delay: float = 1.0) -> dict[str, bool]:
+def check_domains_batch(domains: list[str], max_workers: int = 5) -> dict[str, Optional[bool]]:
     """
-    Check availability of multiple domains with rate limiting.
-    Returns dict mapping domain -> available (True/False).
+    Check availability of multiple domains in parallel.
+    Returns dict mapping domain -> available (True/False/None).
     """
     results = {}
-    for domain in domains:
-        results[domain] = check_domain_available(domain)
-        # Rate limit to avoid getting blocked
-        if len(domains) > 1:
-            time.sleep(delay)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_domain = {
+            executor.submit(check_domain_available, domain): domain
+            for domain in domains
+        }
+        for future in concurrent.futures.as_completed(future_to_domain):
+            domain = future_to_domain[future]
+            try:
+                results[domain] = future.result()
+            except Exception:
+                results[domain] = None
     return results
 
 
@@ -131,9 +148,10 @@ def get_purchase_links(domain: str) -> dict:
     }
 
 
-def get_domain_info(domain: str) -> dict:
+def get_domain_info(domain: str, available: Optional[bool] = None) -> dict:
     """Get full domain info including availability, price, and links."""
-    available = check_domain_available(domain)
+    if available is None:
+        available = check_domain_available(domain)
     return {
         "domain": domain,
         "available": available,

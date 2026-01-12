@@ -2,7 +2,7 @@ import os
 import re
 from anthropic import Anthropic
 import database
-from domain_checker import check_domain_available, normalize_domain, is_valid_domain, get_price, get_purchase_links
+from domain_checker import check_domains_batch, normalize_domain, is_valid_domain, get_price, get_purchase_links
 
 
 def get_client() -> Anthropic:
@@ -137,12 +137,17 @@ def generate_domains(count: int = 25) -> tuple[list[dict], dict]:
     response_text = message.content[0].text
     candidate_domains = parse_domains(response_text)
 
-    # Check availability and filter
+    # Check availability in parallel
+    all_domains = [item["domain"] for item in candidate_domains]
+    availability = check_domains_batch(all_domains)
+
+    # Filter to available domains
     available_domains = []
     for item in candidate_domains:
         if len(available_domains) >= count:
             break
-        if check_domain_available(item["domain"]):
+        is_available = availability.get(item["domain"])
+        if is_available is True:  # Only include confirmed available
             available_domains.append({
                 "domain": item["domain"],
                 "reason": item["reason"],
@@ -195,7 +200,13 @@ def generate_domains_with_params(
     response_text = message.content[0].text
     candidate_domains = parse_domains(response_text)
 
-    # Check availability if requested
+    # Check availability if requested (in parallel)
+    if check_availability:
+        all_domains = [item["domain"] for item in candidate_domains]
+        availability = check_domains_batch(all_domains)
+    else:
+        availability = {}
+
     results = []
     for item in candidate_domains:
         if len(results) >= count:
@@ -205,7 +216,8 @@ def generate_domains_with_params(
         name = domain.rsplit(".", 1)[0]  # Get name without TLD
 
         if check_availability:
-            if check_domain_available(domain):
+            is_available = availability.get(domain)
+            if is_available is True:  # Only include confirmed available
                 results.append({
                     "name": name,
                     "domain": domain,
