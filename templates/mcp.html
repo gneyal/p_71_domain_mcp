@@ -48,20 +48,23 @@
 
             <div class="space-y-6">
                 <div>
-                    <h3 class="font-medium text-gray-900 mb-3">1. Clone or download the server</h3>
+                    <h3 class="font-medium text-gray-900 mb-3">1. Clone the repository</h3>
                     <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
-<pre>git clone https://github.com/autobirds/domain-ai-agent.git
-cd domain-ai-agent
+<pre>git clone git@github.com:gneyal/p_71_domain_mcp.git
+cd p_71_domain_mcp
 pip install -r requirements.txt</pre>
                     </div>
                 </div>
 
                 <div>
                     <h3 class="font-medium text-gray-900 mb-3">2. Set up your API key</h3>
-                    <p class="text-gray-600 text-sm mb-2">Create a <code class="bg-gray-100 px-1 rounded">.env</code> file with your Anthropic API key:</p>
+                    <p class="text-gray-600 text-sm mb-2">Create a <code class="bg-gray-100 px-1 rounded">.env</code> file in the project directory:</p>
                     <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
-<pre>ANTHROPIC_API_KEY=your-api-key-here</pre>
+<pre>cp .env.example .env
+# Edit .env and add your Anthropic API key
+ANTHROPIC_API_KEY=sk-ant-...</pre>
                     </div>
+                    <p class="text-gray-500 text-xs mt-2">The MCP server automatically loads the .env file from its directory. Never commit your .env file.</p>
                 </div>
 
                 <div>
@@ -76,25 +79,27 @@ pip install -r requirements.txt</pre>
   "mcpServers": {
     "domain-name-generator": {
       "command": "python",
-      "args": ["/path/to/domain-ai-agent/mcp_server.py"],
-      "env": {
-        "ANTHROPIC_API_KEY": "your-api-key-here"
-      }
+      "args": ["/path/to/p_71_domain_mcp/mcp_server.py"]
     }
   }
 }</pre>
                     </div>
+                    <p class="text-gray-500 text-xs mt-2">Replace <code class="bg-gray-100 px-1 rounded">/path/to/</code> with the actual path where you cloned the repo.</p>
                 </div>
 
                 <div>
                     <h3 class="font-medium text-gray-900 mb-3">4. Add to Claude Code (CLI)</h3>
-                    <p class="text-gray-600 text-sm mb-2">Edit <code class="bg-gray-100 px-1 rounded">~/.claude/settings.json</code>:</p>
+                    <p class="text-gray-600 text-sm mb-2">Run this command:</p>
+                    <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
+<pre>claude mcp add domain-name-generator python /path/to/p_71_domain_mcp/mcp_server.py</pre>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-3 mb-2">Or manually edit <code class="bg-gray-100 px-1 rounded">~/.claude/settings.json</code>:</p>
                     <div class="bg-gray-900 text-white rounded-xl p-4 font-mono text-sm overflow-x-auto">
 <pre>{
   "mcpServers": {
     "domain-name-generator": {
       "command": "python",
-      "args": ["/path/to/domain-ai-agent/mcp_server.py"]
+      "args": ["/path/to/p_71_domain_mcp/mcp_server.py"]
     }
   }
 }</pre>
