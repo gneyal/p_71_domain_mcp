@@ -1,0 +1,15 @@
+name: Daily Stats Email
+
+on:
+  schedule:
+    # Run at 9:00 AM UTC every day
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  send-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send daily stats email
+        run: |
+          curl -s "https://domains.autobirds.com/api/cron?secret=${{ secrets.CRON_SECRET }}"
