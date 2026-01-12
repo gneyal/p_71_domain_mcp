@@ -2,6 +2,8 @@
 
 AI-powered domain name and brand name generator. Generate creative, memorable, brandable names for your startup, product, or project.
 
+**Live at: [domain-names.autobirds.com](https://domain-names.autobirds.com)**
+
 Built by [AutoBirds](https://autobirds.com).
 
 ## Features
@@ -127,6 +129,7 @@ MIT
 
 ## Links
 
-- [API Documentation](/api)
-- [MCP Documentation](/mcp)
-- [Privacy & Terms](/privacy)
+- [Live App](https://domain-names.autobirds.com)
+- [API Documentation](https://domain-names.autobirds.com/api)
+- [MCP Documentation](https://domain-names.autobirds.com/mcp)
+- [Privacy & Terms](https://domain-names.autobirds.com/privacy)
