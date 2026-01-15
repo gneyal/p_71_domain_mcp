@@ -3,8 +3,11 @@ import type { RequestHandler } from './$types';
 import { generateDomains } from '$lib/server/agent';
 import { getAllSettings, addSuggestion, expireOldSuggestions } from '$lib/server/db';
 import { getPrice, getPurchaseLinks } from '$lib/server/rdap';
+import { trackApiCall } from '$lib/server/posthog';
 
 export const POST: RequestHandler = async ({ request, platform }) => {
+	const startTime = Date.now();
+
 	try {
 		const apiKey = platform?.env?.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
 		if (!apiKey) {
@@ -59,9 +62,28 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			});
 		}
 
+		// Track API usage
+		trackApiCall('/api/suggestions/generate', {
+			success: true,
+			suggestion_count: suggestions.length,
+			tlds,
+			count,
+			duration_ms: Date.now() - startTime,
+			source: 'web_app'
+		});
+
 		return json({ suggestions, usage });
 	} catch (error) {
 		console.error('Generate error:', error);
+
+		// Track failed API call
+		trackApiCall('/api/suggestions/generate', {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+			duration_ms: Date.now() - startTime,
+			source: 'web_app'
+		});
+
 		return json(
 			{ error: `Error generating suggestions: ${error instanceof Error ? error.message : 'Unknown error'}` },
 			{ status: 500 }
