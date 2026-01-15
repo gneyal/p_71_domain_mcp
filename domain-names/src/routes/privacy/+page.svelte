@@ -53,9 +53,6 @@
 					<span>No personal information is shared with third parties</span>
 				</li>
 			</ul>
-			<p class="text-gray-600 mt-3">
-				You can opt out of analytics by declining cookies when prompted.
-			</p>
 
 			<h3 class="text-lg font-medium text-gray-900 mt-8 mb-3">What We Don't Do</h3>
 			<ul class="space-y-2 text-gray-600">
