@@ -1,48 +1,118 @@
 <script>
 </script>
 
-<div class="max-w-3xl mx-auto px-6 py-16">
-	<a href="/" class="text-gray-500 hover:text-gray-900 text-sm mb-8 inline-block">&larr; Back to Domain AI Agent</a>
+<div class="min-h-screen bg-white">
+	<div class="max-w-2xl mx-auto px-6 py-16">
+		<a href="/" class="text-gray-500 hover:text-gray-900 text-sm mb-8 inline-flex items-center gap-1">
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+			</svg>
+			Back
+		</a>
 
-	<h1 class="text-3xl font-semibold text-gray-900 tracking-tight mb-8">Privacy & Terms</h1>
+		<h1 class="text-3xl font-semibold text-gray-900 tracking-tight mb-12">Privacy & Terms</h1>
 
-	<div class="prose prose-gray max-w-none">
-		<h2>Privacy Policy</h2>
-		<p>Domain AI Agent is built by AutoBirds. We respect your privacy and are committed to protecting your data.</p>
+		<!-- Privacy Policy -->
+		<section class="mb-12">
+			<h2 class="text-xl font-semibold text-gray-900 mb-4">Privacy Policy</h2>
+			<p class="text-gray-600 mb-6">
+				Domain AI Agent is built by AutoBirds. We respect your privacy and are committed to protecting your data.
+			</p>
 
-		<h3>What we collect</h3>
-		<ul>
-			<li><strong>Search descriptions</strong> - Used to generate domain suggestions</li>
-			<li><strong>Preferences</strong> - Liked/disliked domains to improve suggestions</li>
-			<li><strong>Email</strong> - Only if you subscribe for updates</li>
-		</ul>
+			<h3 class="text-lg font-medium text-gray-900 mt-8 mb-3">Information We Collect</h3>
+			<ul class="space-y-2 text-gray-600">
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span><strong class="text-gray-900">Search descriptions</strong> — Used to generate domain suggestions via AI</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span><strong class="text-gray-900">Preferences</strong> — Liked/disliked domains stored locally in your browser</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span><strong class="text-gray-900">Email</strong> — Only if you subscribe for daily recommendations</span>
+				</li>
+			</ul>
 
-		<h3>What we don't do</h3>
-		<ul>
-			<li>We don't sell your data</li>
-			<li>We don't share your searches with third parties</li>
-			<li>We don't track you across other websites</li>
-		</ul>
+			<h3 class="text-lg font-medium text-gray-900 mt-8 mb-3">Analytics</h3>
+			<p class="text-gray-600 mb-3">
+				We use <a href="https://posthog.com" target="_blank" class="text-blue-600 hover:underline">PostHog</a> to understand how people use our service. This helps us improve the product.
+			</p>
+			<ul class="space-y-2 text-gray-600">
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>Page views and feature usage</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>Anonymous session data</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>No personal information is shared with third parties</span>
+				</li>
+			</ul>
+			<p class="text-gray-600 mt-3">
+				You can opt out of analytics by declining cookies when prompted.
+			</p>
 
-		<h3>Data storage</h3>
-		<p>Your preferences are stored locally in your browser and optionally synced to our servers to persist across devices.</p>
+			<h3 class="text-lg font-medium text-gray-900 mt-8 mb-3">What We Don't Do</h3>
+			<ul class="space-y-2 text-gray-600">
+				<li class="flex items-start gap-2">
+					<span class="text-green-500 mt-1">✓</span>
+					<span>We don't sell your data</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-green-500 mt-1">✓</span>
+					<span>We don't share your searches with third parties</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-green-500 mt-1">✓</span>
+					<span>We don't track you across other websites</span>
+				</li>
+			</ul>
+		</section>
 
-		<h2>Terms of Service</h2>
-		<p>By using Domain AI Agent, you agree to:</p>
-		<ul>
-			<li>Use the service for lawful purposes only</li>
-			<li>Not abuse the API or attempt to overload our servers</li>
-			<li>Understand that domain availability information may not be 100% accurate</li>
-		</ul>
+		<!-- Terms of Service -->
+		<section class="mb-12">
+			<h2 class="text-xl font-semibold text-gray-900 mb-4">Terms of Service</h2>
+			<p class="text-gray-600 mb-4">By using Domain AI Agent, you agree to:</p>
+			<ul class="space-y-2 text-gray-600">
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>Use the service for lawful purposes only</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>Not abuse the API or attempt to overload our servers</span>
+				</li>
+				<li class="flex items-start gap-2">
+					<span class="text-gray-400 mt-1">•</span>
+					<span>Understand that domain availability may not be 100% accurate</span>
+				</li>
+			</ul>
+		</section>
 
-		<h3>Disclaimer</h3>
-		<p>Domain suggestions are generated by AI and availability is checked via RDAP. We cannot guarantee that suggested domains are available for registration or that prices are accurate. Always verify with your preferred registrar before purchasing.</p>
+		<!-- Disclaimer -->
+		<section class="mb-12">
+			<h2 class="text-xl font-semibold text-gray-900 mb-4">Disclaimer</h2>
+			<p class="text-gray-600">
+				Domain suggestions are generated by AI and availability is checked via RDAP/WHOIS. We cannot guarantee that suggested domains are available for registration or that prices are accurate. Always verify with your preferred registrar before purchasing.
+			</p>
+		</section>
 
-		<h2>Contact</h2>
-		<p>Questions? Reach us at <a href="mailto:hello@autobirds.com">hello@autobirds.com</a></p>
-	</div>
+		<!-- Contact -->
+		<section class="mb-12">
+			<h2 class="text-xl font-semibold text-gray-900 mb-4">Contact</h2>
+			<p class="text-gray-600">
+				Questions? Reach us at <a href="mailto:hello@autobirds.com" class="text-blue-600 hover:underline">hello@autobirds.com</a>
+			</p>
+		</section>
 
-	<div class="mt-12 pt-8 border-t border-gray-200 text-center text-xs text-gray-500">
-		<p>Made by <a href="https://autobirds.com" target="_blank" class="font-semibold text-gray-900 hover:underline">AutoBirds</a></p>
+		<!-- Footer -->
+		<div class="pt-8 border-t border-gray-200 text-center text-xs text-gray-500">
+			<p>Made by <a href="https://autobirds.com" target="_blank" class="font-semibold text-gray-900 hover:underline">AutoBirds</a></p>
+		</div>
 	</div>
 </div>
