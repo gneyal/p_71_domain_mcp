@@ -318,13 +318,13 @@
 			<div class="space-y-4">
 				<div>
 					<label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-						Describe what you're looking for
+						What's your project about?
 					</label>
 					<textarea
 						id="description"
 						bind:value={description}
 						onblur={saveToStorage}
-						placeholder="A modern fintech startup focused on payments..."
+						placeholder="e.g. An AI tool that helps developers write better code..."
 						rows="4"
 						class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
 					></textarea>
