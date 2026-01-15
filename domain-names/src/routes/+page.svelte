@@ -39,7 +39,8 @@
 	let history = $state<HistoryItem[]>([]);
 	let usage = $state<Usage | null>(null);
 	let loading = $state(false);
-	let currentTab = $state<'suggestions' | 'history'>('suggestions');
+	let currentTab = $state<'suggestions' | 'liked' | 'history'>('suggestions');
+	let likedSuggestions = $state<Suggestion[]>([]);
 	let hasUsedBefore = $state(false);
 	let email = $state('');
 	let subscribing = $state(false);
@@ -136,6 +137,10 @@
 		if (savedSessions) {
 			sessions = JSON.parse(savedSessions);
 		}
+		const savedLiked = localStorage.getItem('domain_ai_liked');
+		if (savedLiked) {
+			likedSuggestions = JSON.parse(savedLiked);
+		}
 	}
 
 	function saveSession(desc: string, tldStr: string, domainCount: number) {
@@ -206,11 +211,30 @@
 			history = [{ domain: suggestion.domain, liked, created_at: new Date().toISOString() }, ...history].slice(0, 100);
 			localStorage.setItem('domain_ai_history', JSON.stringify(history));
 
-			// Remove from suggestions
-			suggestions = suggestions.filter((s) => s.id !== suggestion.id);
+			if (liked) {
+				// Add to liked suggestions if not already there
+				if (!likedSuggestions.find(s => s.id === suggestion.id)) {
+					likedSuggestions = [...likedSuggestions, suggestion];
+					localStorage.setItem('domain_ai_liked', JSON.stringify(likedSuggestions));
+				}
+			} else {
+				// Remove from suggestions if disliked
+				suggestions = suggestions.filter((s) => s.id !== suggestion.id);
+			}
 		} catch (err) {
 			console.error('Feedback error:', err);
 		}
+	}
+
+	function copyAllLiked() {
+		const domains = likedSuggestions.map(s => s.domain).join('\n');
+		navigator.clipboard.writeText(domains);
+		alert('Copied ' + likedSuggestions.length + ' domains to clipboard!');
+	}
+
+	function removeLiked(suggestion: Suggestion) {
+		likedSuggestions = likedSuggestions.filter(s => s.id !== suggestion.id);
+		localStorage.setItem('domain_ai_liked', JSON.stringify(likedSuggestions));
 	}
 
 	async function subscribe() {
@@ -493,6 +517,12 @@
 						Suggestions ({suggestions.filter(s => s.available !== null).length})
 					</button>
 					<button
+						onclick={() => currentTab = 'liked'}
+						class={`pb-2 text-sm font-medium border-b-2 -mb-px transition-colors ${currentTab === 'liked' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-apple hover:text-gray-600'}`}
+					>
+						Liked ({likedSuggestions.length})
+					</button>
+					<button
 						onclick={() => currentTab = 'history'}
 						class={`pb-2 text-sm font-medium border-b-2 -mb-px transition-colors ${currentTab === 'history' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-apple hover:text-gray-600'}`}
 					>
@@ -551,6 +581,56 @@
 							</div>
 						{/each}
 					</div>
+				{/if}
+
+				<!-- Liked -->
+				{#if currentTab === 'liked'}
+					{#if likedSuggestions.length > 0}
+						<div class="flex justify-end mb-4">
+							<button
+								onclick={copyAllLiked}
+								class="px-3 py-1.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+							>
+								Copy all ({likedSuggestions.length})
+							</button>
+						</div>
+					{/if}
+					<div class="space-y-3">
+						{#each likedSuggestions as suggestion}
+							<div class="group p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+								<div class="flex items-start justify-between gap-4">
+									<div class="flex-1 min-w-0">
+										<div class="flex items-center gap-2">
+											<span class="font-medium text-gray-900">{suggestion.domain}</span>
+											{#if suggestion.available === true}
+												<span class="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-700">Available</span>
+											{:else if suggestion.available === false}
+												<span class="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700">Taken</span>
+											{/if}
+											<span class="text-sm text-gray-apple">${suggestion.price}/yr</span>
+										</div>
+										<p class="text-sm text-gray-600 mt-0.5">{suggestion.reason}</p>
+										<div class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+											<a href={suggestion.links.namecheap} target="_blank" class="text-xs text-blue-600 hover:underline">Namecheap</a>
+											<a href={suggestion.links.porkbun} target="_blank" class="text-xs text-blue-600 hover:underline">Porkbun</a>
+										</div>
+									</div>
+									<button
+										onclick={() => removeLiked(suggestion)}
+										class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+										title="Remove"
+									>
+										<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+										</svg>
+									</button>
+								</div>
+							</div>
+						{/each}
+					</div>
+					{#if likedSuggestions.length === 0}
+						<p class="text-gray-apple text-sm">No liked domains yet. Like domains from the suggestions to save them here.</p>
+					{/if}
 				{/if}
 
 				<!-- History -->
