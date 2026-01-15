@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
+    "posthog-js": "^1.323.0",
     "resend": "^4.0.0"
   },
   "type": "module"
