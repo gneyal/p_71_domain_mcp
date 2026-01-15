@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
 from pydantic import BaseModel
 from pathlib import Path
@@ -15,7 +16,7 @@ import resend
 import database
 import agent
 import scheduler
-from domain_checker import get_price, get_purchase_links
+from domain_checker import get_price, get_purchase_links, check_domains_batch
 
 # Initialize Resend
 resend.api_key = os.environ.get("RESEND_API_KEY")
@@ -32,6 +33,20 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Domain AI Agent", lifespan=lifespan)
+
+# Add CORS middleware for local development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5175", "http://127.0.0.1:5175"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok", "server": "python-fastapi"}
 
 # Setup templates and static files
 BASE_DIR = Path(__file__).parent
@@ -62,6 +77,10 @@ class GenerateRequest(BaseModel):
     count: int = 10
     tlds: str = ".com,.io,.ai"
     check_availability: bool = True
+
+
+class CheckDomainsRequest(BaseModel):
+    domains: list[str]
 
 
 # Routes
@@ -190,6 +209,23 @@ async def subscribe(req: SubscribeRequest):
         print(f"Failed to send welcome email: {e}")
 
     return {"success": True, "message": "Subscribed successfully"}
+
+
+# Domain availability check endpoint (WHOIS-based)
+@app.post("/api/check-domains")
+async def check_domains(req: CheckDomainsRequest):
+    """
+    Check domain availability using WHOIS.
+    Returns a dict mapping domain -> availability (true/false/null).
+    """
+    if not req.domains:
+        return {"results": {}}
+
+    if len(req.domains) > 100:
+        raise HTTPException(status_code=400, detail="Maximum 100 domains per request")
+
+    results = check_domains_batch(req.domains)
+    return {"results": results}
 
 
 # Public API for programmatic access

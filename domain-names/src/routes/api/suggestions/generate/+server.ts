@@ -4,9 +4,9 @@ import { generateDomains } from '$lib/server/agent';
 import { getAllSettings, addSuggestion, expireOldSuggestions } from '$lib/server/db';
 import { getPrice, getPurchaseLinks } from '$lib/server/rdap';
 
-export const POST: RequestHandler = async ({ platform }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
-		const apiKey = platform?.env?.ANTHROPIC_API_KEY;
+		const apiKey = platform?.env?.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
 		if (!apiKey) {
 			return json({ error: 'API key not configured' }, { status: 500 });
 		}
@@ -16,9 +16,18 @@ export const POST: RequestHandler = async ({ platform }) => {
 			return json({ error: 'Database not configured' }, { status: 500 });
 		}
 
-		// Get settings
+		// Get WHOIS API URL for local development
+		const whoisApiUrl = (platform?.env as Record<string, string>)?.WHOIS_API_URL || '';
+
+		// Get request body (from UI) or fall back to settings
+		const body = await request.json().catch(() => ({}));
 		const settings = await getAllSettings(db);
-		const count = parseInt(settings.daily_count) || 25;
+
+		const description = body.description || settings.description;
+		const tlds = body.tlds || settings.tlds;
+		const count = body.count || parseInt(settings.daily_count) || 25;
+		const wordCount = body.wordCount || null;
+		const wordStyle = body.wordStyle || null;
 
 		// Expire old suggestions
 		await expireOldSuggestions(db);
@@ -26,11 +35,13 @@ export const POST: RequestHandler = async ({ platform }) => {
 		// Generate new domains
 		const { suggestions: generated, usage } = await generateDomains(
 			apiKey,
-			settings.description,
+			description,
 			count,
-			settings.tlds,
+			tlds,
 			true, // check availability
-			db
+			db,
+			whoisApiUrl,
+			{ wordCount, wordStyle }
 		);
 
 		// Store in database and build response

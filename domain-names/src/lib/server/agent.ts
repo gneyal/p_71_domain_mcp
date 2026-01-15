@@ -24,12 +24,18 @@ interface GeneratedDomain {
 	links: Record<string, string>;
 }
 
+interface StyleOptions {
+	wordCount?: string | null; // 'one' | 'two' | 'three' | null
+	wordStyle?: string | null; // 'real' | 'minor-error' | 'invented' | null
+}
+
 function buildPrompt(
 	description: string,
 	tlds: string[],
 	count: number,
 	liked: string[],
-	disliked: string[]
+	disliked: string[],
+	styleOptions?: StyleOptions
 ): string {
 	let likedSection = '';
 	if (liked.length > 0) {
@@ -41,7 +47,27 @@ function buildPrompt(
 		dislikedSection = `\nThe user has DISLIKED these domains (avoid similar patterns):\n${disliked.slice(0, 10).join(', ')}\n`;
 	}
 
-	const tldsStr = tlds.length > 0 ? tlds.join(', ') : '.com, .io, .ai';
+	// Build style constraints based on picker selections
+	let styleConstraints = '';
+	if (styleOptions?.wordCount) {
+		const wordCountMap: Record<string, string> = {
+			'one': '- IMPORTANT: Use only single-word domain names (one word before the TLD)',
+			'two': '- IMPORTANT: Use two-word compound domain names (two words combined before the TLD)',
+			'three': '- IMPORTANT: Use three or more words combined in domain names'
+		};
+		styleConstraints += (wordCountMap[styleOptions.wordCount] || '') + '\n';
+	}
+
+	if (styleOptions?.wordStyle) {
+		const wordStyleMap: Record<string, string> = {
+			'real': '- IMPORTANT: Use only real, correctly spelled English words (no made-up words or misspellings)',
+			'minor-error': '- IMPORTANT: Use creative misspellings of real words (like "lyft", "tumblr", "fiverr" - drop vowels or swap letters)',
+			'invented': '- IMPORTANT: Use completely invented/made-up words that sound good but are not real words'
+		};
+		styleConstraints += (wordStyleMap[styleOptions.wordStyle] || '') + '\n';
+	}
+
+	const tldsStr = tlds.length > 0 ? tlds.join(', ') : '.com, .dev, .ai';
 
 	return `Generate ${count * 6} creative domain name suggestions based on this description:
 
@@ -51,9 +77,8 @@ Requirements:
 - Use these TLDs: ${tldsStr}
 - Names should be short (ideally under 12 characters before TLD)
 - Names should be memorable and brandable
-- Mix different styles: made-up words, compound words, clever abbreviations
-- Each domain should be unique and creative
-- IMPORTANT: Prefer unusual, invented words that are likely to be AVAILABLE (not registered)
+${styleConstraints}- Each domain should be unique and creative
+- IMPORTANT: Prefer unusual words that are likely to be AVAILABLE (not registered)
 - Avoid common English words or obvious tech terms that are likely taken
 ${likedSection}${dislikedSection}
 For each domain, provide a brief reason why it's a good fit (10-15 words max).
@@ -110,7 +135,9 @@ export async function generateDomains(
 	count: number,
 	tlds: string,
 	checkAvailability: boolean,
-	db?: D1Database
+	db?: D1Database,
+	whoisApiUrl?: string,
+	styleOptions?: StyleOptions
 ): Promise<{ suggestions: GeneratedDomain[]; usage: Usage }> {
 	const tldsList = tlds.split(',').map((t) => t.trim());
 
@@ -122,7 +149,7 @@ export async function generateDomains(
 		disliked = await getDislikedDomains(db, 20);
 	}
 
-	const prompt = buildPrompt(description, tldsList, count, liked, disliked);
+	const prompt = buildPrompt(description, tldsList, count, liked, disliked, styleOptions);
 
 	const client = new Anthropic({ apiKey });
 	const message = await client.messages.create({
@@ -153,20 +180,23 @@ export async function generateDomains(
 	let availability = new Map<string, boolean | null>();
 	if (checkAvailability) {
 		const allDomains = candidateDomains.map((d) => d.domain);
-		availability = await checkAvailabilityBatch(allDomains);
+		availability = await checkAvailabilityBatch(allDomains, whoisApiUrl);
 	}
 
-	// Build results
+	// Build results (only show available domains when checking availability)
 	const suggestions: GeneratedDomain[] = [];
 	for (const item of candidateDomains) {
 		if (suggestions.length >= count) break;
 
 		const isAvailable = availability.get(item.domain);
 
-		// If checking availability, only include available domains
-		if (checkAvailability && isAvailable !== true) continue;
+		// Skip taken domains when availability checking is enabled
+		if (checkAvailability && isAvailable === false) {
+			continue;
+		}
 
 		const name = item.domain.split('.')[0];
+
 		suggestions.push({
 			name,
 			domain: item.domain,

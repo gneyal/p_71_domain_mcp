@@ -17,39 +17,119 @@ export const TLD_PRICES: Record<string, number> = {
 	'.ly': 39.98
 };
 
+// FastAPI backend URL for WHOIS lookups (local development)
+// Set via environment or passed to functions
+let whoisApiUrl = '';
+
 /**
- * Check domain availability using RDAP (HTTP-based WHOIS replacement)
+ * Check domain availability using RDAP
  * Returns: true = available, false = taken, null = unknown
  */
 export async function checkAvailability(domain: string): Promise<boolean | null> {
 	try {
 		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 5000);
+		const timeout = setTimeout(() => controller.abort(), 8000);
 
-		const res = await fetch(`https://rdap.org/domain/${domain}`, {
+		const requestUrl = `https://rdap.org/domain/${domain}`;
+		const res = await fetch(requestUrl, {
 			signal: controller.signal,
 			headers: { Accept: 'application/rdap+json' }
 		});
 
 		clearTimeout(timeout);
 
-		// 404 = domain not found = available
-		if (res.status === 404) return true;
-		// 200 = domain found = taken
-		if (res.status === 200) return false;
-		// Other status = unknown
+		// Check if we were redirected (means TLD is supported)
+		const wasRedirected = res.url !== requestUrl;
+
+		// If 404 without redirect, TLD not supported
+		if (res.status === 404 && !wasRedirected) {
+			console.log(`RDAP: ${domain} -> TLD not supported`);
+			return null;
+		}
+
+		// 404 after redirect = available
+		if (res.status === 404) {
+			console.log(`RDAP: ${domain} -> available`);
+			return true;
+		}
+
+		// 200 = taken
+		if (res.status === 200) {
+			console.log(`RDAP: ${domain} -> taken`);
+			return false;
+		}
+
+		console.log(`RDAP: ${domain} -> unknown status ${res.status}`);
 		return null;
-	} catch {
+	} catch (e) {
+		console.log(`RDAP: ${domain} -> error: ${e}`);
 		return null;
 	}
 }
 
 /**
- * Check multiple domains in parallel
+ * Set the WHOIS API URL for domain checking
+ */
+export function setWhoisApiUrl(url: string) {
+	whoisApiUrl = url;
+}
+
+/**
+ * Check multiple domains using FastAPI WHOIS backend
+ */
+async function checkAvailabilityViaWhois(
+	domains: string[],
+	apiUrl: string
+): Promise<Map<string, boolean | null>> {
+	const results = new Map<string, boolean | null>();
+
+	try {
+		const res = await fetch(`${apiUrl}/api/check-domains`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ domains })
+		});
+
+		if (!res.ok) {
+			console.error(`WHOIS API error: ${res.status}`);
+			// Fall back to null for all domains
+			domains.forEach((d) => results.set(d, null));
+			return results;
+		}
+
+		const data = await res.json();
+		for (const [domain, available] of Object.entries(data.results)) {
+			results.set(domain, available as boolean | null);
+		}
+
+		// Log results
+		for (const [domain, available] of results) {
+			const status = available === true ? 'available' : available === false ? 'taken' : 'unknown';
+			console.log(`WHOIS: ${domain} -> ${status}`);
+		}
+	} catch (e) {
+		console.error(`WHOIS API error: ${e}`);
+		domains.forEach((d) => results.set(d, null));
+	}
+
+	return results;
+}
+
+/**
+ * Check multiple domains in parallel (uses WHOIS if configured, otherwise RDAP)
  */
 export async function checkAvailabilityBatch(
-	domains: string[]
+	domains: string[],
+	whoisUrl?: string
 ): Promise<Map<string, boolean | null>> {
+	// Use WHOIS API if provided or configured (local development)
+	const apiUrl = whoisUrl || whoisApiUrl;
+	if (apiUrl) {
+		console.log(`Using WHOIS API at ${apiUrl}`);
+		return checkAvailabilityViaWhois(domains, apiUrl);
+	}
+
+	// Fall back to RDAP
 	const results = new Map<string, boolean | null>();
 
 	const checks = domains.map(async (domain) => {

@@ -19,7 +19,7 @@
 <pre>{`{
   "description": "Modern fintech startup",
   "count": 10,
-  "tlds": ".com,.io,.ai",
+  "tlds": ".com,.dev,.ai",
   "check_availability": false
 }`}</pre>
 		</div>
@@ -46,7 +46,7 @@
 			<div class="border-b border-gray-100 pb-3">
 				<div class="flex items-center gap-2 mb-1">
 					<code class="text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">tlds</code>
-					<span class="text-xs text-gray-500">string, default: ".com,.io,.ai"</span>
+					<span class="text-xs text-gray-500">string, default: ".com,.dev,.ai"</span>
 				</div>
 				<p class="text-sm text-gray-600">Comma-separated list of TLDs.</p>
 			</div>

@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ platform }) => {
 				settings: {
 					daily_count: '25',
 					description: 'Short, memorable, brandable domain names for a tech startup',
-					tlds: '.com,.io,.ai,.co'
+					tlds: '.com,.dev,.ai'
 				}
 			});
 		}

@@ -2,5 +2,6 @@ node_modules/
 .svelte-kit/
 .wrangler/
 .env
+.dev.vars
 *.local
 .DS_Store

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS settings (
 -- Default settings
 INSERT OR IGNORE INTO settings (key, value) VALUES ('daily_count', '25');
 INSERT OR IGNORE INTO settings (key, value) VALUES ('description', 'Short, memorable, brandable domain names for a tech startup');
-INSERT OR IGNORE INTO settings (key, value) VALUES ('tlds', '.com,.io,.ai,.co');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('tlds', '.com,.dev,.ai');
 
 -- Domain suggestions
 CREATE TABLE IF NOT EXISTS suggestions (
