@@ -531,7 +531,7 @@
 		{/if}
 	</div>
 
-	<!-- Footer -->
+	<!-- Footer v2 -->
 	<footer class="max-w-6xl mx-auto px-6 py-8 border-t border-gray-200">
 		<div class="flex items-center justify-between text-xs text-gray-apple">
 			<div class="flex gap-4">
