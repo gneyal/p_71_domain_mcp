@@ -63,12 +63,41 @@
 		{ value: 'invented', label: 'Invented words' }
 	];
 
+	const tldOptions = [
+		{ value: '.com', label: '.com' },
+		{ value: '.io', label: '.io' },
+		{ value: '.ai', label: '.ai' },
+		{ value: '.dev', label: '.dev' },
+		{ value: '.co', label: '.co' },
+		{ value: '.app', label: '.app' },
+		{ value: '.tech', label: '.tech' },
+		{ value: '.xyz', label: '.xyz' }
+	];
+
+	const countOptions = [
+		{ value: 10, label: '10' },
+		{ value: 25, label: '25' },
+		{ value: 50, label: '50' }
+	];
+
+	let selectedTlds = $state<string[]>(['.com', '.io', '.ai']);
+
 	function togglePicker(type: 'wordCount' | 'wordStyle', value: string) {
 		if (type === 'wordCount') {
 			wordCount = wordCount === value ? null : value;
 		} else {
 			wordStyle = wordStyle === value ? null : value;
 		}
+		saveToStorage();
+	}
+
+	function toggleTld(tld: string) {
+		if (selectedTlds.includes(tld)) {
+			selectedTlds = selectedTlds.filter(t => t !== tld);
+		} else {
+			selectedTlds = [...selectedTlds, tld];
+		}
+		tlds = selectedTlds.join(',');
 		saveToStorage();
 	}
 
@@ -93,7 +122,8 @@
 		if (saved) {
 			const s = JSON.parse(saved);
 			description = s.description || '';
-			tlds = s.tlds || '.com,.dev,.ai';
+			tlds = s.tlds || '.com,.io,.ai';
+			selectedTlds = tlds.split(',').filter((t: string) => t.trim());
 			count = s.count || 25;
 			wordCount = s.wordCount || null;
 			wordStyle = s.wordStyle || null;
@@ -340,29 +370,41 @@
 					</div>
 				</div>
 
-				<div class="grid grid-cols-2 gap-4">
-					<div>
-						<label for="tlds" class="block text-sm font-medium text-gray-700 mb-1">TLDs</label>
-						<input
-							id="tlds"
-							type="text"
-							bind:value={tlds}
-							onblur={saveToStorage}
-							placeholder=".com,.dev,.ai"
-							class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-						/>
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">TLDs</label>
+					<div class="flex flex-wrap gap-2">
+						{#each tldOptions as option}
+							<button
+								type="button"
+								onclick={() => toggleTld(option.value)}
+								class={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+									selectedTlds.includes(option.value)
+										? 'bg-gray-900 text-white border-gray-900'
+										: 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+								}`}
+							>
+								{option.label}
+							</button>
+						{/each}
 					</div>
-					<div>
-						<label for="count" class="block text-sm font-medium text-gray-700 mb-1">Results</label>
-						<input
-							id="count"
-							type="number"
-							bind:value={count}
-							onblur={saveToStorage}
-							min="1"
-							max="50"
-							class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-						/>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-gray-700 mb-2">Results</label>
+					<div class="flex flex-wrap gap-2">
+						{#each countOptions as option}
+							<button
+								type="button"
+								onclick={() => { count = option.value; saveToStorage(); }}
+								class={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+									count === option.value
+										? 'bg-gray-900 text-white border-gray-900'
+										: 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+								}`}
+							>
+								{option.label}
+							</button>
+						{/each}
 					</div>
 				</div>
 
