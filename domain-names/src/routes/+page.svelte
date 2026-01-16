@@ -81,6 +81,24 @@
 		{ value: 50, label: '50' }
 	];
 
+	const triviaQuestions = [
+		{ q: 'What was Google originally called?', a: 'BackRub', options: ['BackRub', 'SearchIt', 'PageRank', 'Googol'] },
+		{ q: 'How much did the domain cars.com sell for?', a: '$872 million', options: ['$8.7 million', '$87 million', '$872 million', '$8.72 billion'] },
+		{ q: 'What year was the first .com domain registered?', a: '1985', options: ['1983', '1985', '1989', '1991'] },
+		{ q: 'Which company owns the most domain names?', a: 'Google', options: ['Google', 'Amazon', 'Microsoft', 'GoDaddy'] },
+		{ q: 'What does TLD stand for?', a: 'Top Level Domain', options: ['Top Level Domain', 'Total Link Directory', 'Technical Link Data', 'Transfer Layer Domain'] },
+		{ q: 'How many .com domains exist?', a: '150+ million', options: ['15 million', '50 million', '150+ million', '500 million'] },
+		{ q: 'What was Twitter\'s original name idea?', a: 'twttr', options: ['twit', 'twttr', 'tweeter', 'birdie'] },
+		{ q: 'Which TLD is for Montenegro?', a: '.me', options: ['.mn', '.me', '.mo', '.mt'] },
+		{ q: 'What was Instagram called before launch?', a: 'Burbn', options: ['Picta', 'Burbn', 'InstaSnap', 'PhotoShare'] },
+		{ q: 'How much did voice.com sell for?', a: '$30 million', options: ['$3 million', '$30 million', '$300 million', '$3 billion'] }
+	];
+
+	let currentTrivia = $state(0);
+	let selectedAnswer = $state<string | null>(null);
+	let showAnswer = $state(false);
+	let triviaScore = $state(0);
+
 	let selectedTlds = $state<string[]>(['.com', '.io', '.ai']);
 
 	function togglePicker(type: 'wordCount' | 'wordStyle', value: string) {
@@ -100,6 +118,28 @@
 		}
 		tlds = selectedTlds.join(',');
 		saveToStorage();
+	}
+
+	function selectTriviaAnswer(answer: string) {
+		if (showAnswer) return;
+		selectedAnswer = answer;
+		showAnswer = true;
+		if (answer === triviaQuestions[currentTrivia].a) {
+			triviaScore++;
+		}
+	}
+
+	function nextTrivia() {
+		currentTrivia = (currentTrivia + 1) % triviaQuestions.length;
+		selectedAnswer = null;
+		showAnswer = false;
+	}
+
+	function resetTrivia() {
+		currentTrivia = Math.floor(Math.random() * triviaQuestions.length);
+		selectedAnswer = null;
+		showAnswer = false;
+		triviaScore = 0;
 	}
 
 	onMount(() => {
@@ -172,6 +212,7 @@
 		hasUsedBefore = true;
 		localStorage.setItem('domain_ai_has_used', 'true');
 		saveToStorage();
+		resetTrivia();
 
 		try {
 			const res = await fetch('/api/suggestions/generate', {
@@ -445,6 +486,44 @@
 					{/if}
 				</button>
 			</div>
+
+			<!-- Trivia Game while loading -->
+			{#if loading}
+				<div class="mt-6 p-5 bg-gray-50 rounded-xl border border-gray-200 animate-fade-in-up">
+					<div class="flex items-center justify-between mb-3">
+						<span class="text-xs font-medium text-gray-500 uppercase tracking-wide">While you wait...</span>
+						<span class="text-xs text-gray-400">Score: {triviaScore}</span>
+					</div>
+					<p class="text-gray-900 font-medium mb-4">{triviaQuestions[currentTrivia].q}</p>
+					<div class="grid grid-cols-2 gap-2">
+						{#each triviaQuestions[currentTrivia].options as option}
+							<button
+								onclick={() => selectTriviaAnswer(option)}
+								disabled={showAnswer}
+								class={`p-2.5 text-sm rounded-lg border transition-all ${
+									showAnswer
+										? option === triviaQuestions[currentTrivia].a
+											? 'bg-green-100 border-green-500 text-green-800'
+											: selectedAnswer === option
+												? 'bg-red-100 border-red-500 text-red-800'
+												: 'bg-white border-gray-200 text-gray-500'
+										: 'bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50'
+								}`}
+							>
+								{option}
+							</button>
+						{/each}
+					</div>
+					{#if showAnswer}
+						<button
+							onclick={nextTrivia}
+							class="mt-3 w-full py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+						>
+							Next question →
+						</button>
+					{/if}
+				</div>
+			{/if}
 
 			{#if usage}
 				<div class="mt-4 text-xs text-gray-apple text-center">
