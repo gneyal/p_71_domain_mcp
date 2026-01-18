@@ -29,6 +29,7 @@
 		tlds: string;
 		timestamp: string;
 		domainCount: number;
+		suggestions: Suggestion[];
 	}
 
 	let description = $state('');
@@ -183,13 +184,14 @@
 		}
 	}
 
-	function saveSession(desc: string, tldStr: string, domainCount: number) {
+	function saveSession(desc: string, tldStr: string, sessionSuggestions: Suggestion[]) {
 		const session: Session = {
 			id: Date.now().toString(),
 			description: desc.slice(0, 50) + (desc.length > 50 ? '...' : ''),
 			tlds: tldStr,
 			timestamp: new Date().toISOString(),
-			domainCount
+			domainCount: sessionSuggestions.length,
+			suggestions: sessionSuggestions
 		};
 		sessions = [session, ...sessions].slice(0, 10); // Keep last 10 sessions
 		localStorage.setItem('domain_ai_sessions', JSON.stringify(sessions));
@@ -198,6 +200,14 @@
 	function loadSession(session: Session) {
 		description = session.description.replace('...', '');
 		tlds = session.tlds;
+		selectedTlds = tlds.split(',').filter((t: string) => t.trim());
+
+		// Restore suggestions from session, filtering out those already voted on
+		if (session.suggestions && session.suggestions.length > 0) {
+			const votedDomains = new Set(history.map(h => h.domain));
+			suggestions = session.suggestions.filter(s => !votedDomains.has(s.domain));
+		}
+
 		saveToStorage();
 	}
 
@@ -229,7 +239,7 @@
 				usage = data.usage || null;
 				// Save session
 				if (suggestions.length > 0) {
-					saveSession(description, tlds, suggestions.length);
+					saveSession(description, tlds, suggestions);
 				}
 			}
 		} catch (err) {
