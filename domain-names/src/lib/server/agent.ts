@@ -133,13 +133,13 @@ export async function generateDomains(
 	apiKey: string,
 	description: string,
 	count: number,
-	tlds: string,
+	tlds: string | string[],
 	checkAvailability: boolean,
 	db?: D1Database,
 	whoisApiUrl?: string,
 	styleOptions?: StyleOptions
 ): Promise<{ suggestions: GeneratedDomain[]; usage: Usage }> {
-	const tldsList = tlds.split(',').map((t) => t.trim());
+	const tldsList = Array.isArray(tlds) ? tlds : tlds.split(',').map((t) => t.trim());
 
 	// Get user preferences if db available
 	let liked: string[] = [];
